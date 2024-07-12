@@ -1,7 +1,9 @@
 package com.sparta.springauth.auth;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +38,34 @@ public class AuthController {
 
     return "getCookie : " + value; // getCookie : Jun Auth
   }
+
+  // 세션 데이터 만들기 {"Name" : "SESSIONID", "Value" : "6ASFT15RHSA..(난수)"
+  @GetMapping("/create-session")
+  public String createSession(HttpServletRequest req) {
+    // 세션이 존재할 경우 세션 반환, 없을 경우 새로운 세션을 생성한 후 반환
+    HttpSession session = req.getSession(true);
+
+    // 없을 경우: setAttribute(Name: Value)를 사용하여 세션에 저장될 쿠키 정보 생성.
+    session.setAttribute(AUTHORIZATION_HEADER, "Jun Auth");
+
+    return "createSession";
+  }
+
+  // 세션 데이터 가져오기
+  @GetMapping("/get-session")
+  public String getSession(HttpServletRequest req) {
+    // 세션이 존재할 경우 세션 반환, 없을 경우 null 반환
+    HttpSession session = req.getSession(false);
+    // /create-session에서 session.setAttribute()를 통해 세션을 만들어 놓았다, null일 경우 if문을 통해 제어 가능
+
+    // getAttribute(Name): Name에 해당하는 Value를 가져온다
+    // {"Name" : "Authorization", "Value" : "Jun Auth"}
+    String value = (String) session.getAttribute(AUTHORIZATION_HEADER);
+    System.out.println("value = " + value); // value = Jun Auth
+
+    return "getSession : " + value;
+  }
+
 
   // 쿠키가 생성되는 과정
   public static void addCookie(String cookieValue, HttpServletResponse res) {
