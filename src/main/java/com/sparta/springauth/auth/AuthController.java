@@ -1,9 +1,14 @@
 package com.sparta.springauth.auth;
 
+import com.sparta.springauth.entity.UserRoleEnum;
+import com.sparta.springauth.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,11 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class AuthController {
 
   public static final String AUTHORIZATION_HEADER = "Authorization";
+
+  private final JwtUtil jwtUtil;
+
+// -- Cookie --
 
   // 쿠키를 생성하는 방법
   @GetMapping("/create-cookie")
@@ -38,6 +49,9 @@ public class AuthController {
 
     return "getCookie : " + value; // getCookie : Jun Auth
   }
+
+
+//  -- Session --
 
   // 세션 데이터 만들기 {"Name" : "SESSIONID", "Value" : "6ASFT15RHSA..(난수)"
   @GetMapping("/create-session")
@@ -64,6 +78,51 @@ public class AuthController {
     System.out.println("value = " + value); // value = Jun Auth
 
     return "getSession : " + value;
+  }
+
+
+//  -- Jwt --
+
+  // Jwt 토큰 생성
+  @GetMapping("/create-jwt")
+  public String createJwt(HttpServletResponse res) {
+    // Jwt 생성
+    String token = jwtUtil.createToken("Jun", UserRoleEnum.USER); // token: Bearer eyJhbGciOi...
+
+    // 생성된 JWT를 Cookie스토리지에 저장
+    jwtUtil.addJwtToCookie(token, res); // {"Name" : "Authorization" : "Key" : "Bearer%20eyJhbGciOi..."}
+
+    return "createJwt : " + token; // createJwt : Bearer eyJhbGciOi...
+  }
+
+  // Jwt 토큰 조회: 검증된 토큰의 사용자 정보 조회
+  @GetMapping("/get-jwt")
+  public String getJwt(
+          // {"Name" : "Authorization" : "Key" : "Bearer%20eyJhbGciOi..."}
+          // @CookieValue(가지고 오려는 쿠키 Name 값)를 이용하여 쿠키를 가져온다
+          @CookieValue(JwtUtil.AUTHORIZATION_HEADER)
+          String tokenValue // Authorization의 Value값: Bearer eyJhbGciOi...
+  ) {
+    log.info("@@@@ : {}", tokenValue); // Bearer eyJhbGciOi...
+    // JWT 토큰 substring: 순수한 토큰 값 찾기
+    String token = jwtUtil.substringToken(tokenValue); // eyJhbGciOi...
+
+    // 토큰 검증
+    if(!jwtUtil.validateToken(token)){ // jwtUtil.validateToken()이 false를 반환해야 true가 되므로 if문 실행
+      throw new IllegalArgumentException("Token Error");
+    }
+
+    // if문을 통하여 검증된 토큰에서 사용자 정보 가져오기
+    Claims info = jwtUtil.getUserInfoFromToken(token);
+    // 사용자 username
+    String username = info.getSubject();
+    System.out.println("username = " + username);
+    // 사용자 권한: /create-jwt의 createToken()에서 권한을 Key : Value형식으로 넣어 줬다
+    // 즉, info.get()을 통하여 검증된 토큰 Key값의 Value값을 찾을 수 있다
+    String authority = (String) info.get(JwtUtil.AUTHORIZATION_KEY);
+    System.out.println("authority = " + authority);
+
+    return "getJwt : " + username + ", " + authority; // getJwt : Jun, USER
   }
 
 
