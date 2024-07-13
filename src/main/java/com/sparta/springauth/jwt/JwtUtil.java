@@ -24,7 +24,7 @@ import java.util.Date;
 //       즉, 다른객체에 의존하지 않고, 하나의 모듈로써 동작하는 클래스 ex) 날짜, 원, (3,000)과 같이 문자열을 조작하는 Util 클래스
 public class JwtUtil {
 
-// 1. JWT 데이터 만들기
+// 1. JWT 설정 데이터 만들기
   // Header KEY 값 (Cookie 형태의 Name값) {Name : Vale}
   public static final String AUTHORIZATION_HEADER = "Authorization";
   // 사용자의 권한을 가져오기 위한 Key값 -> ex) User, admin ..
@@ -57,6 +57,7 @@ public class JwtUtil {
   public String createToken(String username, UserRoleEnum role) {
     Date date = new Date(); // 현재 시간
 
+    // Bearer eyJhbGciOiJIUzI...
     return BEARER_PREFIX +
             Jwts.builder()
                     .setSubject(username) // 사용자 식별자값(ID)
@@ -77,11 +78,13 @@ public class JwtUtil {
       // token에는 공백이 있으면 안된다, token을 URLEncoder로 encode해준다: Bearer eyJhbGciOi... -> Bearer%20eyJhbGciOi...
       token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Bearer%20eyJhbGciOi...
 
+      // @@ 생성한 JWT를 Cookie에 담아준다
       // servlet.http.Cookie
       // 쿠키 스토리지에 담기는 형태 {"Name" : "Authorization" : "Key" : "Bearer%20eyJhbGciOi..."}
       Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // {Name : Value} (F12 쿠키 스토리지의 쿠키 형태 참조)
       cookie.setPath("/"); // (F12 쿠키 스토리지에 있는 쿠키 형태 속의 Path)
 
+      // @@ JWT를 담은 Cookie를 쿠키 스토리지에 담아준다
       // Response 객체에 데이터를 담으면 클라이언트(쿠키 스토리지)에 자동으로 반환이 가능하다
       // 쿠키 스토리지에 담기는 형태 {"Name" : "Authorization" : "Key" : "Bearer%20eyJhbGciOi..."}
       res.addCookie(cookie); // addCookie(): 이미 존재하는 HttpServletResponse(res).addCookie()를 사용하여 Response에 데이터 담아주기

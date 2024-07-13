@@ -30,16 +30,19 @@
     <button id="login-id-submit">로그인</button>
   </form>
 
+  <!-- 로그인 실패시 보여지는 문구  -->
   <div id="login-failed" style="display: none" class="alert alert-danger" role="alert">로그인에 실패하였습니다.</div>
 
 </div>
 </body>
 
-<!-- 로그인 실패시 스크립트 -->
 <script>
+    // /api/user/login
     const href = location.href;
+    // /api/user/login?error
     const queryString = href.substring(href.indexOf("?")+1)
     if (queryString === 'error') {
+        // id="login-failed" (주석: 로그인 실패시 보여지는 문구) display = 'none -> block' 으로 보여주기
         const errorDiv = document.getElementById('login-failed');
         errorDiv.style.display = 'block';
     }
