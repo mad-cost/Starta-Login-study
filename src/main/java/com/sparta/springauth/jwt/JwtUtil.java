@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
@@ -131,5 +133,25 @@ public class JwtUtil {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
+
+  // HttpServletRequest 에서 Cookie의 Value: JWT 가져오기 / {"Value" : "Barer20%.."}
+  // 이렇게 직접 만들어주는 이유는 Filter는 Spring보다 먼저 실행되기 때문 / Controller에서 처럼 @CookieValue 사용 불가
+  public String getTokenFromRequest(HttpServletRequest req) {
+    // 쿠키 스토리지에 담겨있는 Cookie 의 형태 {"Authorization" : "Bearer%20eyJhbGci..."}
+    Cookie[] cookies = req.getCookies(); // Cookie[]: 쿠키 스토리지(Response)에서 모든 쿠키 꺼내기
+    if(cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+          try {
+            // 토큰에 문제가 없다면 디코딩 후 반환: Bearer%20eyJhbGci -> Bearer eyJhbGci...
+            return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
+          } catch (UnsupportedEncodingException e) {
+            return null;
+          }
+        }
+      }
+    }
+    return null;
+  }
 
 }
