@@ -29,6 +29,8 @@ public class UserController {
 
   @PostMapping("user/signup")
   public String signup(
+          // @ModelAttribute 가 생략되어 있다 / HTML <form> 데이터를 DTO 객체로 매핑
+          // SignupRequestDto는 HTML <form>에서 보내는 'name'속성 값과 일치해야 한다
           SignupRequestDto requestDto,
           Model model
   ){
