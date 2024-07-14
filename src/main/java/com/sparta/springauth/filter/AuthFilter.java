@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 
 @Slf4j(topic = "AuthFilter")
-@Component
+//@Component
 @Order(2) // Filter 동작 순서 지정 / 두 번째로 동작하는 Filter
 // 인증 및 인가에 대한 Filter
 public class AuthFilter implements Filter {

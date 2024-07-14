@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j(topic = "LoggingFilter")
-@Component
+// @Component
+// SpringSecurity는 Filter를 기반으로 동작한다
 // Filter는 여러개가 있는데 이것을 Filter-Chain 이라고 한다
 @Order(1) // Filter 동작 순서 지정 / 첫 번째로 동작하는 Filter
 // 클라이언트에서 요청이 들어오면 httpServlet이 동작하기 전에 Filter가 먼저 동작된다
