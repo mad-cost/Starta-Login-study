@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
 public class WebSecurityConfig {
 
-  // 스파르타 코딩
+
   @Bean
   public SecurityFilterChain securityFilterChain(
           HttpSecurity http
@@ -25,31 +25,12 @@ public class WebSecurityConfig {
             authorizeHttpRequests
                     .requestMatchers(
                             PathRequest.toStaticResources().atCommonLocations())
-                    .permitAll() // resources 접근 허용 설정
+                    .permitAll() // resources 접근 모두 허용 ex) /css/**, /js/**, /images/**, /favicon.ico..
                     .anyRequest()
                     .authenticated() // 그 외 모든 요청 인증처리
     );
 
-
-  // 멋쟁이 사자처럼
-  @Bean
-  public SecurityFilterChain securityFilterChain(
-          HttpSecurity http
-  ) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                    // 로그인
-                    .requestMatchers(
-                            PathRequest.toStaticResources().atCommonLocations()
-                    )
-                    .permitAll() // resources 접근 허용 설정
-                    .anyRequest()
-                    .authenticated()
-    );
-
-
-
-    // 로그인 사용
+    // 로그인 사용 (default 로그인 기능 ID: user)
     http.formLogin(Customizer.withDefaults());
 
     return http.build();
