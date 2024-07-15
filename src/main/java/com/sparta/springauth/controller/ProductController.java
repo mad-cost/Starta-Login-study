@@ -1,7 +1,9 @@
 package com.sparta.springauth.controller;
 
 import com.sparta.springauth.entity.User;
+import com.sparta.springauth.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,11 +14,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ProductController {
 
   @GetMapping("/products")
-  public String getProducts(HttpServletRequest req) {
-    System.out.println("ProductController.getProducts : 인증 완료");
-    // AuthFilter에서 request.setAttribute("user", user);를 해주었다
-    User user = (User) req.getAttribute("user");
+  public String getProducts(
+          // Authentication의 Principle에 들어있는 userDetails 꺼내기.
+          @AuthenticationPrincipal UserDetailsImpl userDetails
+          ) {
+
+
+    /* 사용자 정보 꺼내기: UserDetailsServiceImpl에서 loadUserByUsername()로 유저를 조회하고
+       조회 성공 유저를 UserDetailsImpl에 전달, 전달된 유저를 바탕으로 getUser()를 사용 하여 유저 정보 꺼내기 */
+    User user = userDetails.getUser();
     System.out.println("user.getUsername() = " + user.getUsername());
+    System.out.println("user.getEmail() = " + user.getEmail());
 
     return "redirect:/";
   }
