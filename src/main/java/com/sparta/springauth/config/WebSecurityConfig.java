@@ -39,7 +39,7 @@ public class WebSecurityConfig {
     /* 로그인 사용 (default 로그인 기능 ID: user)
     http.formLogin(Customizer.withDefaults()); */
 
-    // 로그인 사용
+    // Session 로그인 사용 방식
     // UserDetailsServiceImpl, UserDetailsImpl을 사용하여 Custom 로그인: default로그인이 아닌 내가 만든 로그인창 사용하기
     http.formLogin((formLogin) ->
             formLogin

@@ -55,7 +55,7 @@ public class JwtUtil {
   }
 
 // 2. JWT 생성
-  // 토큰 생성
+  // 토큰 생성 = 토큰 발급
   public String createToken(String username, UserRoleEnum role) {
     Date date = new Date(); // 현재 시간
 

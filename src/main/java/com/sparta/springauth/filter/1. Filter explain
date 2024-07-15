@@ -1,0 +1,17 @@
+실행 순서:
+1. 클라이언트
+2. Filter-Chain(수많은 Filter중에 SecurityFilterChain이 여기에 속해있다)
+3. DispatcherServlet
+4. Spring Boot
+5. 처리 과정 역순으로 반환
+_____________________________
+
+filter Package의 AuthFilter, LoggingFilter는,
+클라이언트에서 요청이 들어오면 httpServlet이 동작하기 전에 Filter가 먼저 동작하는 과정을 보기 위해 만든 Filter의 구현체 클래스이다
+_____________________________
+
+jwt(Package)/JwtAuthenticationFilter: Jwt 인증 처리 필터 사용하기
+jwt Package에 Jwt를 적용하여 Jwt인증을 처리해줄 Filter인 'JwtAuthenticationFilter' 만들어주기
+
+
+

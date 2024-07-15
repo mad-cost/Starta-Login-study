@@ -61,28 +61,30 @@ public class UserService {
     userRepository.save(user);
   }
 
-  public void login(LoginRequestDto requestDto, HttpServletResponse res) {
-    String username = requestDto.getUsername();
-    String password = requestDto.getPassword();
 
-    // 사용자 아이디 확인
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
-
-    // 사용자 비밀번호 확인
-    //matches(평문 데이터, 암호화된 데이터)
-    if (!passwordEncoder.matches(password, user.getPassword())){
-      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-    }
-    // ▲ 사용자의 아이디 비밀번호 인증 성공
-
-    /* ▼ 인증된 사용자의 정보를 바탕으로,
-    JWT 생성 및 생성된 JWT를 쿠키에 저장 후 Response 객체(쿠키 스토리지)에 추가
-     */
-    // Bearer eyJhbGciOiJIUzI...
-    String token = jwtUtil.createToken(user.getUsername(), user.getRole());
-    // Bearer%20eyJhbGciOiJIUzI...
-    jwtUtil.addJwtToCookie(token, res);
-
-  }
+    // Jwt 사용: JwtAuthenticationFilter클래스를 사용하여 로그인 인증을 처리하고, 토큰을 생성 및 반환함으로 / Session 방식에서 사용하는 login()은 사용하지 않는다
+//  public void login(LoginRequestDto requestDto, HttpServletResponse res) {
+//    String username = requestDto.getUsername();
+//    String password = requestDto.getPassword();
+//
+//    // 사용자 아이디 확인
+//    User user = userRepository.findByUsername(username)
+//            .orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
+//
+//    // 사용자 비밀번호 확인
+//    //matches(평문 데이터, 암호화된 데이터)
+//    if (!passwordEncoder.matches(password, user.getPassword())){
+//      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//    }
+//    // ▲ 사용자의 아이디 비밀번호 인증 성공
+//
+//    /* ▼ 인증된 사용자의 정보를 바탕으로,
+//    JWT 생성 및 생성된 JWT를 쿠키에 저장 후 Response 객체(쿠키 스토리지)에 추가
+//     */
+//    // Bearer eyJhbGciOiJIUzI...
+//    String token = jwtUtil.createToken(user.getUsername(), user.getRole());
+//    // Bearer%20eyJhbGciOiJIUzI...
+//    jwtUtil.addJwtToCookie(token, res);
+//
+//  }
 }

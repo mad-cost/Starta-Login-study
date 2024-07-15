@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-
-  <!-- favicon.ico 에러 해결  -->
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-
   <meta charset="UTF-8">
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <meta charset="UTF-8">
   <title>로그인 페이지</title>
 </head>
@@ -20,35 +19,70 @@
   <div id="login-title">Log into Select Shop</div>
   <br>
   <br>
+
   <button id="login-id-btn" onclick="location.href='/api/user/signup'">
     회원 가입하기
   </button>
 
-  <form action="/api/user/login" method="post">
+  <div>
     <div class="login-id-label">아이디</div>
-    <input type="text" name="username" class="login-input-box">
+    <input type="text" name="username" id="username" class="login-input-box">
 
     <div class="login-id-label">비밀번호</div>
-    <input type="password" name="password" class="login-input-box">
+    <input type="password" name="password" id="password" class="login-input-box">
 
-    <button id="login-id-submit">로그인</button>
-  </form>
+    <button id="login-id-submit" onclick="onLogin()">로그인</button>
+  </div>
 
-  <!-- 로그인 실패시 보여지는 문구  -->
+  <!--  로그인 실패 예외 처리  -->
   <div id="login-failed" style="display: none" class="alert alert-danger" role="alert">로그인에 실패하였습니다.</div>
 
 </div>
 </body>
 
 <script>
-    // /api/user/login
+    // 문서가 준비되면(document.ready 이벤트) 쿠키에서 Authorization 토큰을 삭제.
+    $(document).ready(function () {
+        // 토큰 삭제
+        Cookies.remove('Authorization', {path: '/'});
+    });
+
+
+    // 현재 호스트 주소를 가져와 host 변수에 저장합니다.
+    const host = 'http://' + window.location.host; // http://localhost:8080
+
+    // 로그인 실패 예외 처리
     const href = location.href;
-    // /api/user/login?error
     const queryString = href.substring(href.indexOf("?")+1)
     if (queryString === 'error') {
-        // id="login-failed" (주석: 로그인 실패시 보여지는 문구) display = 'none -> block' 으로 보여주기
         const errorDiv = document.getElementById('login-failed');
         errorDiv.style.display = 'block';
+    }
+
+    // 로그인: onLogin() 함수는 로그인 버튼이 클릭되었을 때 호출
+    function onLogin() {
+        // 사용자가 입력한 사용자 이름(username)과 비밀번호(password)를 가져온다
+        let username = $('#username').val();
+        let password = $('#password').val();
+
+        $.ajax({
+            type: "POST",
+            url: `/api/user/login`,
+            contentType: "application/json",
+            data: JSON.stringify(
+                {username: username, password: password}
+            ),
+        })
+            // 로그인 성공 시 host(http://localhost:8080)페이지로 이동
+            .done(function (res, status, xhr) {
+                window.location.href = host;
+            })
+            // 로그인 실패 시, 페이지 이동 후 <body>에 '로그인 실패 예외 처리' 실행.
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.log('statusCode: ' + xhr.status);
+                // 페이지 이동: host(http://localhost:8080) + '/api/user/login-page?error'
+                window.location.href = host + '/api/user/login-page?error'
+            });
     }
 </script>
 </html>
