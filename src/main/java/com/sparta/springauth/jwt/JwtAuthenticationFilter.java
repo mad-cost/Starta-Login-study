@@ -47,6 +47,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
               request.getInputStream(), LoginRequestDto.class
       );
 
+      log.info("로그인 select가 실행되는 부분");
       /* 1. 사용자가 로그인을 시도한 Json데이터(username,password)를 가지고
       *  2. 인증 객체인 UsernamePasswordAuthenticationToken을 만든다
       *  3. 만든Token 정보를 AuthenticationManager가 .authenticate()를 통하여 인증 성공, 실패를 판단한다 */
@@ -79,8 +80,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
     // 토큰을 생성할 때 사용자 식별 username과 역할을 넣어준다
-    String token = jwtUtil.createToken(username, role); // // Bearer eyJhbGciOiJIUzI...
-    jwtUtil.addJwtToCookie(token, response);
+    String token = jwtUtil.createToken(username, role); // Bearer eyJhbGciOiJIUzI...
+    jwtUtil.addJwtToCookie(token, response); // 쿠키 레포지토리의 {Value : Bearer%20eyJhbGciOiJIUzI...}값을 넣어준다
+    // 로그인 성공 쿠키 레포지포리에 저장 후 login.html의 <script>onLogin()에 의하여 '/'로 이동
+    // 필터 동작 순서는 : JwtAuthorizationFilter -> JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter / WebSecurityConfig클래스의 실행순서 참조
+    // 클라이언트에 토큰이 없을경우 로그인 실행시 로그에는 '로그인 시도'가 먼저 찍히지만 사실은 JwtAuthorizationFilter를 먼저 들렸다 온다
   }
 
   @Override
@@ -93,5 +97,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     log.info("로그인 실패");
     // 401 Error: Unauthorized(인증 실패)
     response.setStatus(401);
+    // 실패시 login.html의 <script>onLogin()에 의하여 login-page?error로 이동 / '로그인 실패 예외 처리' 실행.
   }
 }
