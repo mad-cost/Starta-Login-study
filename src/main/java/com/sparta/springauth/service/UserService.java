@@ -45,7 +45,7 @@ public class UserService {
       throw new IllegalArgumentException("중복된 Email 입니다.");
     }
 
-    // 사용자 ROLE 확인: role에 일반사용자 권한을 넣어둔다
+    // 사용자 ROLE 확인: role에 일반사용자 권한(USER)을 넣어둔다
     UserRoleEnum role = UserRoleEnum.USER;
     // isAdmin(): admin의 boolean값을 가져온다
     if (requestDto.isAdmin()) {

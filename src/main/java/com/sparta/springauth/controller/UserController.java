@@ -4,19 +4,27 @@ import com.sparta.springauth.dto.LoginRequestDto;
 import com.sparta.springauth.dto.SignupRequestDto;
 import com.sparta.springauth.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
+@Slf4j
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserController {
 
   private final UserService userService;
+
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
 
   @GetMapping("/user/login-page")
   public String loginPage() {
@@ -29,40 +37,26 @@ public class UserController {
     return "signup";
   }
 
-
-  @PostMapping("user/signup")
+  @PostMapping("/user/signup")
   public String signup(
+          @Valid // SignupRequestDto객체 유효성 검사
           // @ModelAttribute 가 생략되어 있다 / HTML <form> 데이터를 DTO 객체로 매핑
-          // SignupRequestDto는 HTML <form>에서 보내는 'name'속성 값과 일치해야 한다
-          SignupRequestDto requestDto
-  ){
-      userService.signup(requestDto);
-      return "redirect:/api/user/login-page";
+          SignupRequestDto requestDto,
+          // BindingResult: SignupRequestDto객체가 유효성 검사에 실패할 경우, BindingResult에 오류 정보를 담는다
+          BindingResult bindingResult
+  ) {
+    // Validation 예외처리
+    List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+    if(fieldErrors.size() > 0) {
+      for (FieldError fieldError : bindingResult.getFieldErrors()) {
+        log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+      }
+      // 회원 가입 실패시, 다시 회원 가입 페이지로 반환
+      return "redirect:/api/user/signup";
+    }
+
+    userService.signup(requestDto);
+    // 회원 가입에 성공시, 로그인 페이지로 반환
+    return "redirect:/api/user/login-page";
   }
-
-
-
-    // Jwt 사용: JwtAuthenticationFilter클래스를 사용하여 로그인 인증을 처리하고, 토큰을 생성 및 반환
-//  @PostMapping("/user/login")
-//  public String login(
-//          // @ModelAttribute 생략
-//          LoginRequestDto requestDto,
-//          // Jwt를 Cookie에 담고 Response객체에 넣어주기 위해
-//          HttpServletResponse res
-//  ){
-//
-//    // login()에 문제가 있을경우 login-page로 이동 후 <script>를 사용하여 에러 메세지 보여주기
-//    try {
-//      /* requestDto를 사용하여 사용자를 검증하고,
-//      res를 사용하여 JWT 생성 및 쿠키에 저장 후 Response 객체(쿠키 스토리지)에 추가
-//      */
-//      userService.login(requestDto, res);
-//    } catch (Exception e) {
-//      return "redirect:/api/user/login-page?error";
-//    }
-//
-//    return "redirect:/";
-//  }
-
-
 }
