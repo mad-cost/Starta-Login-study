@@ -16,6 +16,7 @@ public enum UserRoleEnum {
   }
 
   public static class Authority { // 권한 상수를 담고 있는 클래스
+    // 권한 이름 규칙: "ROLE"로 시작해야 한다 / UserDetailsImpl의 @Override에서 사용자의 권한 부여 설정
     public static final String USER = "ROLE_USER";
     public static final String ADMIN = "ROLE_ADMIN";
   }

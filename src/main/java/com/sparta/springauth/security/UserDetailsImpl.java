@@ -34,10 +34,12 @@ public class UserDetailsImpl implements UserDetails {
     return user.getUsername();
   }
 
-  @Override
+  @Override // 사용자의 권한 부여 설정
+  // WebSecurityConfig클래스에서 @Secured사용하기 위한 @EnableGlobalMethodSecurity 추가
+  // API 권한 제어 방법: @Controller에서 @Secured로 API 접근 권한 설정이 가능하다
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    UserRoleEnum role = user.getRole();
-    String authority = role.getAuthority();
+    UserRoleEnum role = user.getRole(); // User / User 객체의 역할(Role)을 가져온다
+    String authority = role.getAuthority(); // ROLE_USER / 역할에 해당하는 권한을 가져온다
 
     SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
     Collection<GrantedAuthority> authorities = new ArrayList<>();
