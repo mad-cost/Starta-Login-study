@@ -1,15 +1,16 @@
 package com.sparta.springauth.controller;
 
+import com.sparta.springauth.dto.ProductRequestDto;
 import com.sparta.springauth.entity.User;
 import com.sparta.springauth.entity.UserRoleEnum;
 import com.sparta.springauth.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/api")
@@ -41,5 +42,18 @@ public class ProductController {
     }
 
     return "redirect:/";
+  }
+
+  // 유효성 검사
+  @PostMapping("/validation")
+  @ResponseBody // Postman 사용
+  /* 요청 본문 Json형식으로 @RequestBody에 전달된 ProductRequestDto객체의 유효성을 검사하고,
+     유효성 검사를 통과한 경우 요청 객체를 반환*/
+  public ProductRequestDto testValid(
+          @RequestBody
+          @Valid
+          ProductRequestDto requestDto
+  ) {
+    return requestDto;
   }
 }
